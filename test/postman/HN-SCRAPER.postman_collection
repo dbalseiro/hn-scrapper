@@ -1,0 +1,145 @@
+{
+	"variables": [],
+	"info": {
+		"name": "HN-SCRAPER",
+		"_postman_id": "60b08493-475d-1880-f3de-425893dd1eb8",
+		"description": "You'll have to create a web crawler using scraping techniques to extract the first 30 entries from https://news.ycombinator.com/ You'll only care about the title, number of the order, the amount of comments and points for each entry. \n\nFrom there, we want it to be able to perform a couple of filtering operations:\n\n- Filter all previous entries with more than five words in the title ordered by amount of comments first.\n    \n- Filter all previous entries with less than or equal to five words in the title ordered by points.\n\n\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "All Entries",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Should be at least 30 items\"] = jsonData.length <= 30;",
+							"tests[\"Should not be empty\"] = jsonData.length > 0;",
+							"tests[\"Response time is less than 1s\"] = responseTime < 1000;",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}:{{port}}/hn-entries/",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Get all entries from HN"
+			},
+			"response": []
+		},
+		{
+			"name": "More Than 5 words by comments",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"function titlesOver5Words(data) {",
+							"    result = true;",
+							"    data.forEach(function(item) {",
+							"        var words = item.title.split(/ +/)",
+							"        if (words.length <= 5) {",
+							"            result = false;",
+							"            return;",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"function correctOrder(data) {",
+							"    result = true;",
+							"    var last = data[0].comments;",
+							"    data.forEach(function(item) {",
+							"        if (last < item.comments) {",
+							"            result = false;",
+							"            return;",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Should be at least 30 items\"] = jsonData.length <= 30;",
+							"tests[\"Should not be empty\"] = jsonData.length > 0;",
+							"tests[\"Response time is less than 1s\"] = responseTime < 1000;",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"tests[\"All titles more than 5 words\"] = titlesOver5Words(jsonData);",
+							"tests[\"Correct Order\"] = correctOrder(jsonData);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}:{{port}}/hn-entries/filter-by/numberofwords/GT/5/order-by/comments/desc",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Get all entries from HN"
+			},
+			"response": []
+		},
+		{
+			"name": "More Than or equal to 5 words by points",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"function titlesOver5Words(data) {",
+							"    result = true;",
+							"    data.forEach(function(item) {",
+							"        var words = item.title.split(/ +/)",
+							"        if (words.length < 5) {",
+							"            result = false;",
+							"            return;",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"function correctOrder(data) {",
+							"    result = true;",
+							"    var last = data[0].points;",
+							"    data.forEach(function(item) {",
+							"        if (last < item.points) {",
+							"            result = false;",
+							"            return;",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Should be at least 30 items\"] = jsonData.length <= 30;",
+							"tests[\"Should not be empty\"] = jsonData.length > 0;",
+							"tests[\"Response time is less than 1s\"] = responseTime < 1000;",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"tests[\"All titles more than 5 words\"] = titlesOver5Words(jsonData);",
+							"tests[\"Correct Order\"] = correctOrder(jsonData);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://{{host}}:{{port}}/hn-entries/filter-by/NUMBEROFWORDS/GTE/5/order-by/points/desc",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Get all entries from HN"
+			},
+			"response": []
+		}
+	]
+}
