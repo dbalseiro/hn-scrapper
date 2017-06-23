@@ -11,18 +11,19 @@ const PORT = 8080;
 
 //set API Routes and start server...
 (function main() {
-    router.establishRoutes(function(route) {
-        switch(route.verb) {
-        case 'GET': 
+    var routeTable = {
+        GET: function(route) {
             server.get(route.uri, route.action);
-            break;
-        case 'POST':
+        },
+        POST: function(route) {
             server.post(route.uri, route.action);
-            break;
-        default:
-            console.log('unknown verb %j', route);
-            break;
         }
+    };
+
+    router.establishRoutes(function(route) {
+        var f = routeTable[route.verb];
+        if (f) f(route);
+        else console.log('unknown verb %j', route);
     });
 
     server.listen(PORT, function() {
